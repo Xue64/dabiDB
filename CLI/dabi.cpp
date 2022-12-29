@@ -10,6 +10,7 @@ int main (int argc, char ** argv){
 
     using namespace dive;
     auto file = std::make_unique<FileReader>("mytoken.dabi");
+
     // default console output
     if (argc==1){
         init_help();
