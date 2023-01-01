@@ -15,4 +15,7 @@ auto init_help() -> void {
     return;
 }
 
+#undef func
+#undef let
+
 #endif //DIVEDB__DABI_HELP_H

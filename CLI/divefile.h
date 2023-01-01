@@ -33,10 +33,10 @@ namespace dive {
         /**
          *
          *
-         * @brief The @c dive::FileReder() default constructor.
+         * @brief The @c dive::FileReader() default constructor.
          * @params path contains the file's path.
          */
-        FileReader(std::string path) {
+        FileReader(const std::string& path) {
             this->path = path;
             input_file = std::make_shared<std::ifstream>(path);
 
@@ -47,6 +47,7 @@ namespace dive {
          *
          * @brief Closes the file.
          * @warning Manually closing this file will call the object destructor.
+         * @warning Unless absolutely necessary, do not close this file manually. Upon calling this object's destructor, the file will be closed automatically.
          */
         void close() {
             delete this;
@@ -109,6 +110,10 @@ namespace dive {
             return input_file->is_open();
         }
 
+
+        /**
+         * Deletes the class and closes the internal file.
+         */
         ~FileReader() {
             input_file->close();
         }
@@ -118,16 +123,138 @@ namespace dive {
     class FileWriter {
         std::shared_ptr<std::ofstream> output_file;
         std::string path;
+        bool append;
 
 
     public:
-        FileWriter(std::string path) {
+        /**
+         * @brief FileWriter's default constructor.
+         * @param path used for determining the path to the file.
+         */
+        FileWriter(const std::string& path) {
             this->path = path;
             output_file = std::make_shared<std::ofstream>(path);
+            this->append = false;
         }
 
+        /**
+         *
+         *
+         * @param path the path to the file to write
+         * @param append append mode; set true if you want to append
+         */
+        FileWriter(const std::string& path, const bool& append){
+            this->append = append;
+            this->path = path;
+            if (!append){
+                output_file = std::make_shared<std::ofstream>(path);
+                return;
+            }
+            output_file = std::make_shared<std::ofstream>(path, std::ios::app);
+        }
+
+
+        /**
+         *
+         *
+         * @brief Set the append status of the current file.
+         * @param append set to true to turn on append mode.
+         */
+        void setAppend(const bool& append){
+            this->append = append;
+            if (append){
+                output_file = std::make_shared<std::ofstream>(path, std::ios::app);
+                return;
+            } std::make_shared<std::ofstream>(path);
+        }
+
+        /**
+         *
+         * @param line The string to write to the file. Will append if append was set to true.
+         * @return Returns a bool that returns true if process was successful.
+         */
+        bool writeLine(const std::string& line){
+            *output_file << line;
+            return true;
+        }
+
+        /**
+         *
+         *
+         * @brief Takes a vector and writes it to the file. Each string will be appended with a newline.
+         * @param std::vector<std::string>
+         * @return Returns true if the operation is successful.
+         */
+        bool writeVector(const std::vector<std::string> &vector){
+            for (auto i : vector){
+                *output_file << i << std::endl;
+            } return true;
+        }
+
+        /**
+         *
+         *
+         * @brief Takes a vector and writes it to the file. Each string will be appended with the specified delimiter.
+         * @param std::vector<std::string>
+         * @param std::string delimiter Specifies how to end each line in-between strings.
+         * @return Returns true if the operation is successful.
+         */
+        bool writeVector(const std::vector<std::string> &vector, const std::string &delimiter){
+            if (append){
+                for (auto i : vector){
+                    *output_file << i << delimiter;
+                } return true;
+            }
+            setAppend(true);
+            for (auto i: vector){
+                *output_file << i << delimiter;
+            }
+            append = false;
+            return true;
+        }
+
+        /**
+         *
+         *
+         * @brief This methods retrieves the raw @c std::ofstream object.
+         * @returns A reference to the @c std::ofstream object.
+         */
         auto &get() {
             return output_file;
+        }
+
+        /**
+         *
+         * @return Returns true if file is open.
+         */
+        bool isOpen(){
+            return output_file->is_open();
+        }
+
+        /**
+         *
+         * @return Returns true if file has append mode enabled.
+         */
+        bool isAppend(){
+            return append;
+        }
+
+        /**
+         *
+         *
+         * @brief Closes the file.
+         * @warning Manually closing this file will call the object destructor.
+         * @warning Unless absolutely necessary, do not close this file manually. Upon calling this object's destructor, the file will be closed automatically.
+         */
+        void close(){
+            delete this;
+        }
+
+        /**
+         * @brief Flushes the file buffer.
+         */
+        void flush(){
+            output_file->flush();
         }
 
         ~FileWriter() {
