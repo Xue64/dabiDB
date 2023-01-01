@@ -10,6 +10,7 @@
 #include "dabi_macros.h"
 #include <map>
 #include <hash_map>
+#include "strlib.h"
 
 
 /*
@@ -23,9 +24,14 @@
  *      - FROM
  *
  */
-#define make_op operand
+
+
+#define make_op new operand
 class Parser{
 private:
+
+    // pseudo-enums for tokens
+    struct token;
     static let OPERAND = 0;
     static let NOT_OP = 1;
     static let COMPOUND = 2;
@@ -33,9 +39,9 @@ private:
     static let NUMERIC = 4;
     static let VARCHAR = 5;
     static let MATH_SINGULAR = 6;
-    std::vector<std::vector<std::string>> * token_plane;
-    std::vector<std::string> query;
-    struct operand{
+    std::vector<std::vector<token>> * token_plane; // represents all the tokens in a query
+    std::vector<std::string> query; // single-line strings to represent a query
+    struct operand{ // used as a token identifier for the operand
         int parity;
         int type;
 
@@ -43,8 +49,30 @@ private:
             this->parity = parity;
             this->type = type;
         }
+
+        operand(){
+            parity = -99;
+            type = -99;
+        }
     };
-    std::map<std::string, operand> * def_token;
+
+    struct token{ // contains the operand, represents the token
+        std::string token_name;
+        operand * token_operand;
+
+        token (const std::string& token_name, operand * token_operand){
+            this->token_operand = token_operand;
+            this->token_name = token_name;
+        }
+
+        token(){
+            token_name = "DEFAULT_ERROR_MUST_NOT_APPEAR";
+            token_operand = new operand();
+            delete token_operand;
+        }
+
+    };
+    std::map<std::string, operand* > * def_token; // represents a map containing all the predefined operands, uses flyweight
 
 
     auto init_tokens(){
@@ -59,18 +87,22 @@ private:
 
 
     auto tokenize (){
-        std::vector<std::string> temp_buff;
+        std::vector<token> temp_buff;
+        token token_buffer;
 
         for (auto i : query){
             auto buff = strlib::split(i, " ");
             for (auto j : buff){
-                operand res = operand(0, 0);
+                operand * res = new operand(NOT_OP, NOT_OP);
                 try {
                     res = def_token->at(j);
                 } catch (std::out_of_range e){
-                    res = operand(NOT_OP, NOT_OP);
+
                 }
+                token_buffer = token(j, res);
             }
+            temp_buff.emplace_back(token_buffer);
+
         }
     }
 
@@ -78,9 +110,9 @@ private:
 public:
     Parser(const std::vector<std::string>& query){
         this->query = query;
-        def_token = new std::map<std::string, operand>();
+        def_token = new std::map<std::string, operand*>();
         init_tokens();
-        token_plane = new std::vector<std::vector<std::string>>;
+        token_plane = new std::vector<std::vector<token>>;
         tokenize();
     }
 };
