@@ -22,7 +22,11 @@
  *      - >
  *      - =
  *      - FROM
- *
+ *      - ALTER
+ *      - DROP
+ *      - DATABASE
+ *      - TABLE
+ *      - COLUMN
  */
 
 
@@ -39,6 +43,8 @@ private:
     static let NUMERIC = 4;
     static let VARCHAR = 5;
     static let MATH_SINGULAR = 6;
+    static let MODIFY = 7;
+    static let MODIFY_OPERANDS = 9;
     std::vector<std::vector<token>> * token_plane; // represents all the tokens in a query
     std::vector<std::string> query; // single-line strings to represent a query
     struct operand{ // used as a token identifier for the operand
@@ -83,6 +89,11 @@ private:
         def_token->emplace("<", make_op(OPERAND, MATH));
         def_token->emplace("=", make_op(OPERAND, MATH_SINGULAR));
         def_token->emplace(">", make_op(OPERAND, MATH));
+        def_token->emplace("DROP", make_op(OPERAND, MODIFY));
+        def_token->emplace("ALTER", make_op(OPERAND, MODIFY));
+        def_token->emplace("TABLE", make_op(OPERAND, MODIFY_OPERANDS));
+        def_token->emplace("DATABASE", make_op(OPERAND, MODIFY_OPERANDS));
+        def_token->emplace("COLUMNS", make_op(OPERAND, MODIFY_OPERANDS));
     }
 
 
@@ -102,7 +113,6 @@ private:
                 token_buffer = token(j, res);
             }
             temp_buff.emplace_back(token_buffer);
-
         }
     }
 
