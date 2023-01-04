@@ -186,9 +186,17 @@ namespace dive {
          * @return Returns true if the operation is successful.
          */
         bool writeVector(const std::vector<std::string> &vector){
+            int ctr = 1;
             for (auto i : vector){
+                if (ctr==5){
+                    output_file->flush();
+                    ctr = 0;
+                }
+                ctr++;
                 *output_file << i << std::endl;
-            } return true;
+            }
+            output_file->flush();
+            return true;
         }
 
         /**

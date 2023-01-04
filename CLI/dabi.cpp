@@ -7,11 +7,24 @@
 #include "dabi_parser.h"
 
 int main (int argc, char ** argv){
-
     auto file = std::vector<std::string>();
-    Parser * parse = new Parser(file);
 
-    using namespace dive;
+    /*
+    {
+        using namespace dive;
+        auto reader = FileReader("path.testpg");
+        auto writer = FileWriter("path.testpg", true);
+        std::cout << std::endl;
+        auto res = reader.readFile();
+
+        for (int i = 0; i<=1 ; i++){
+            writer.writeVector(*res.get());
+        }
+        for (auto i : *res){
+            std::cout << i << std::endl;
+        }
+
+    } */
     // default console output
     if (argc==1){
         init_help();
