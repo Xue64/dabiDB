@@ -31,9 +31,6 @@ namespace strlib {
             if (s[i]=='\"'){
                 stack_counter++;
                 for (i = i+1; i < s.length(); i++){
-                    if (s.length()==i+1){
-                        dabi_err::no_terminating_quote();
-                    }
                     if (s[i]=='\"'){
                         if (s[i-1]!='\\'){
                             stack_counter++;
@@ -42,6 +39,9 @@ namespace strlib {
                             stack.reserve(s.size());
                             i++;
                             break;
+                        } else {
+                            stack.pop_back();
+                            continue;
                         }
                     }
                     stack.push_back(s[i]);
