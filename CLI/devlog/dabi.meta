@@ -1,0 +1,23 @@
+database tree structure:
+
+    database_name:
+        config_files:
+            hsh.meta [contains database key]
+            ver.meta [contains database version details]
+            log.meta [contains log files]
+        table_data:
+            table_one:
+            table_two:
+            table_three:
+
+
+path:
+    sockets
+    ACID compliance
+    hashes
+    making backups
+
+
+table config:
+    [1] - meta column
+    [2] - datatype column

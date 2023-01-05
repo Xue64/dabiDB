@@ -10,6 +10,7 @@
 #include <memory>
 #include "dabi_cli.h"
 #include "strlib.h"
+#include "dabi_parser.h"
 
 
 auto consolidate (const int &argc, char ** argv) {
@@ -46,6 +47,7 @@ auto fetch_command (int argc, char ** argv) -> void {
             query = CLI::event_loop(key, hash);
         } else {
             query = CLI::event_loop();
+            Parser parser = Parser(query);
         }
         auto vect = strlib::stack_split(query);
         for (auto i : *vect){

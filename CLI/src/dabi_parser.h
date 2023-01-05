@@ -45,16 +45,19 @@ private:
     static let MATH_SINGULAR = 6;
     static let MODIFY = 7;
     static let MODIFY_OPERANDS = 9;
-    std::vector<std::vector<token>> * token_plane; // represents all the tokens in a query
-    std::vector<std::string> query; // single-line strings to represent a query
+    std::vector<token*> * token_plane; // represents all the tokens in a query
+    std::string query; // single-line strings to represent a query
     struct operand{ // used as a token identifier for the operand
         int parity;
         int type;
+    public:
 
         operand(int type, int parity){
             this->parity = parity;
             this->type = type;
         }
+
+
 
         operand(){
             parity = -99;
@@ -87,7 +90,9 @@ private:
         def_token->emplace("FROM", make_op(OPERAND, COMPOUND));
         def_token->emplace("*", make_op(OPERAND, COMPOUND));
         def_token->emplace("<", make_op(OPERAND, MATH));
-        def_token->emplace("=", make_op(OPERAND, MATH_SINGULAR));
+        def_token->emplace(">=", make_op(OPERAND, MATH));
+        def_token->emplace("=", make_op(OPERAND, MATH));
+        def_token->emplace("<=", make_op(OPERAND, MATH));
         def_token->emplace(">", make_op(OPERAND, MATH));
         def_token->emplace("DROP", make_op(OPERAND, MODIFY));
         def_token->emplace("ALTER", make_op(OPERAND, MODIFY));
@@ -96,33 +101,42 @@ private:
         def_token->emplace("COLUMNS", make_op(OPERAND, MODIFY_OPERANDS));
     }
 
-
-    auto tokenize (){
-        std::vector<token> temp_buff;
-        token token_buffer;
-
-        for (auto i : query){
-            auto buff = strlib::split(i, " ");
-            for (auto j : buff){
-                operand * res = new operand(NOT_OP, NOT_OP);
-                try {
-                    res = def_token->at(j);
-                } catch (std::out_of_range e){
-
-                }
-                token_buffer = token(j, res);
+    auto parse(){
+        for (auto i : *token_plane){
+            if (i->token_operand->type==OPERAND){
+                std::cout << "operand!\n";
+            } else {
+                std::cout << "not operand\n";
             }
-            temp_buff.emplace_back(token_buffer);
         }
     }
 
 
+    auto tokenize () {
+        std::vector<token*> temp_buff;
+        token * token_buffer;
+        auto string_buffer = strlib::stack_split(query);
+        for (auto i : *string_buffer) {
+            auto no_op = i;
+            try {
+                i = strlib::strToUp(i);
+                auto op = def_token->at(i);
+                token_buffer = new token(i, op);
+            } catch (std::exception e) {
+                token_buffer = new token(no_op, new operand(NOT_OP, NOT_OP));
+            }
+            token_plane->push_back(token_buffer);
+        }
+        parse();
+    }
+
+
 public:
-    Parser(const std::vector<std::string>& query){
+    Parser(const std::string& query){
         this->query = query;
         def_token = new std::map<std::string, operand*>();
         init_tokens();
-        token_plane = new std::vector<std::vector<token>>;
+        token_plane = new std::vector<token*>;
         tokenize();
     }
 };

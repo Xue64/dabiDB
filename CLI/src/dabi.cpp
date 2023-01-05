@@ -8,11 +8,7 @@
 
 int main (int argc, char ** argv){
 
-   std::string query;
-    auto vector = strlib::stack_split(query);
-    for (auto i : *vector){
-        std::cout << i << std::endl;
-    }
+
 
     /*
     {
