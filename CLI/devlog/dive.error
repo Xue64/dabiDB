@@ -1,5 +1,16 @@
+CLI ERRORS:
+41 - Invalid CLI command
+
+
+
 802 - unterminated double quote character
 803 - double operand error
 804 - invalid key exception, unknown value
 805 - no select keyword
 806 - no from keyword
+807 - dangling operand
+
+data type errors:
+901 - conducting non-math operands on NUMERIC
+902 - conducting non-VARCHAR operands on VARCHAR
+903 - conducting non-selector operands on VARIABLES

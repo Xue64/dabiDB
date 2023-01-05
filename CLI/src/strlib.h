@@ -45,6 +45,7 @@ namespace strlib {
                     if (s[i]=='\"'){
                         if (s[i-1]!='\\'){
                             stack_counter++;
+                            stack.append(" $$VARCHAR$$");
                             res->push_back(stack);
                             stack.clear();
                             stack.reserve(s.size());

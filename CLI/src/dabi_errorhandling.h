@@ -6,6 +6,23 @@
 #define DIVEDB__DABI_ERRORHANDLING_H
 #include <iostream>
 namespace dabi_err{
+
+    void unknownCLICommand(std::vector<std::string> args){
+        std::cerr << "ERR 41 Args Error [UnknownCLIArgumentException]: unknown CLI command sequence: [ ";
+        int ctr = 0;
+        for (auto i: args){
+            ctr++;
+            if (ctr<3){
+                continue;
+            }
+            std::cerr << i << " ";
+        }
+        std::cerr << "] \n";
+        std::cerr << "\nknown commands:\n\n\tFOR ADMIN ACCESS: -h [host name] -p [host password]\n\t"
+                     "FOR USER ACCESS: -h [host name] -p [host password] -u [username]\n\t";
+        exit(41);
+    }
+
     void no_terminating_quote(){
         std::cerr << "ERR 802 Parse Error [NoTerminatingQuoteException]: no terminating double quote character (\") detected. Remove all double quotes or fix formatting to avoid error.\n";
         exit(802);
@@ -30,6 +47,27 @@ namespace dabi_err{
         std::cerr << "ERR 806 Null Pointer / Parse Error [NoDatabaseSelectedException]: the FROM statement was not found after the SELECT clause.\n";
         exit(806);
     }
+
+    void danglingOperand(std::string op){
+        std::cerr << "ERR 809 Parse Error [DanglingOperandException]: cannot end on operand [" << op << "]. This is an incomplete query.\n";
+        exit(807);
+    }
+
+    void invalidMathOperand(const std::string &math, const std::string &operand){
+        std::cerr << "ERR 901 Operand Mismatch [NotNumericOperandException]: the operand [" << operand << "] cannot operate on NUMERIC data [" << math << "]\n";
+        exit(901);
+    }
+
+    void invalidStringOperand(const std::string &math, const std::string &operand){
+        std::cerr << "ERR 902 Operand Mismatch [NotVARCHAROperandException]: the operand [" << operand << "] cannot operate on VARCHAR data [" << math << "]\n";
+        exit(902);
+    }
+
+    void invalidVariableOperand(const std::string &math, const std::string &operand){
+        std::cerr << "ERR 901 Operand Mismatch [NotSelectorOperandException]: the operand [" << operand << "] cannot operate on VARIABLES data [" << math << "]\n";
+        exit(903);
+    }
+
 }
 
 

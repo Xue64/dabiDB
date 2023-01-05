@@ -38,29 +38,31 @@ private:
     struct token;
     static let OPERAND = 0;
     static let NOT_OP = 1;
-    static let COMPOUND = 2;
+    static let SELECTOR = 2;
     static let MATH = 3;
     static let NUMERIC = 4;
     static let VARCHAR = 5;
-    static let MATH_SINGULAR = 6;
+   // CHANGE!! static let MATH_SINGULAR = 6;
     static let MODIFY = 7;
     static let MODIFY_OPERANDS = 9;
+    static let STRING_OPERATOR = 10;
+    static let VARNAME = 11;
     std::vector<token*> * token_plane; // represents all the tokens in a query
     std::string query; // single-line strings to represent a query
     struct operand{ // used as a token identifier for the operand
-        int parity;
+        int data_type;
         int type;
     public:
 
-        operand(int type, int parity){
-            this->parity = parity;
+        operand(int type, int data_type){
+            this->data_type = data_type;
             this->type = type;
         }
 
 
 
         operand(){
-            parity = -99;
+            data_type = -99;
             type = -99;
         }
     };
@@ -85,10 +87,9 @@ private:
 
 
     auto init_tokens(){
-        def_token->emplace("SELECT", make_op(OPERAND, COMPOUND));
-        def_token->emplace("WHERE", make_op(OPERAND, COMPOUND));
-        def_token->emplace("FROM", make_op(OPERAND, COMPOUND));
-        def_token->emplace("*", make_op(NOT_OP, COMPOUND));
+        def_token->emplace("SELECT", make_op(OPERAND, SELECTOR));
+        def_token->emplace("WHERE", make_op(OPERAND, SELECTOR));
+        def_token->emplace("FROM", make_op(OPERAND, SELECTOR));
         def_token->emplace("<", make_op(OPERAND, MATH));
         def_token->emplace(">=", make_op(OPERAND, MATH));
         def_token->emplace("=", make_op(OPERAND, MATH));
@@ -99,25 +100,50 @@ private:
         def_token->emplace("TABLE", make_op(OPERAND, MODIFY_OPERANDS));
         def_token->emplace("DATABASE", make_op(OPERAND, MODIFY_OPERANDS));
         def_token->emplace("COLUMNS", make_op(OPERAND, MODIFY_OPERANDS));
+        def_token->emplace("LIKE", make_op(OPERAND, STRING_OPERATOR));
     }
 
     auto parse(){
         bool isTurn = false;
         std::string prev;
+        token * prev_token;
         for (auto i : *token_plane){
+            // operand checking
             if (i->token_operand->type==OPERAND){
                 if (isTurn){
                     dabi_err::double_operand(i->token_name, prev);
                 }
                 isTurn = true;
             } else {
-                if (!isTurn){
+                // non-operand variable type checking
+                if (!isTurn){ // checks if operand - not_operand order is maintained
                     dabi_err::invalidKey(i->token_name);
+                }
+
+                // checking for NUMERIC tokens
+                if (i->token_operand->data_type==NUMERIC){
+                    if (prev_token->token_operand->data_type!=MATH){
+                        dabi_err::invalidMathOperand(i->token_name, prev_token->token_name);
+                    }
+                } else if (i->token_operand->data_type==VARNAME){
+                    if (prev_token->token_operand->data_type!=SELECTOR){
+                        dabi_err::invalidVariableOperand(i->token_name, prev_token->token_name);
+                    }
+                } else if (i->token_operand->data_type==VARCHAR) {
+                    if (prev_token->token_operand->data_type != STRING_OPERATOR) {
+                        dabi_err::invalidStringOperand(i->token_name, prev_token->token_name);
+                    }
                 }
                 isTurn = false;
             }
             prev = i->token_name;
+            prev_token = i;
         }
+
+        if (isTurn){
+            dabi_err::danglingOperand((token_plane->at(token_plane->size()-1))->token_name);
+        }
+
         if (token_plane->size()==0){
             dabi_err::noSelect();
         } else if(token_plane->at(0)->token_name!="SELECT"){
@@ -133,15 +159,29 @@ private:
     auto tokenize () {
         std::vector<token*> temp_buff;
         token * token_buffer;
+        bool isNumeric;
         auto string_buffer = strlib::stack_split(query);
         for (auto i : *string_buffer) {
+            isNumeric = false;
             auto no_op = i;
             try {
                 i = strlib::strToUp(i);
                 auto op = def_token->at(i);
                 token_buffer = new token(i, op);
             } catch (std::exception e) {
-                token_buffer = new token(no_op, new operand(NOT_OP, NOT_OP));
+                if (no_op.at(0) >= '0' && no_op.at(0) <= '9'){
+                    isNumeric = true;
+                }
+                auto varchar = no_op.find(" $$VARCHAR$$");
+                if (varchar!=std::string::npos){
+                    no_op = no_op.substr(0, varchar);
+                    token_buffer = new token(no_op, new operand(NOT_OP, VARCHAR));
+                } else if (isNumeric){
+                    token_buffer = new token(no_op, new operand(NOT_OP, NUMERIC));
+                } else {
+                    token_buffer = new token(no_op, new operand(NOT_OP, VARNAME));
+                }
+
             }
             token_plane->push_back(token_buffer);
         }
