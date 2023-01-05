@@ -47,12 +47,9 @@ auto fetch_command (int argc, char ** argv) -> void {
             query = CLI::event_loop(key, hash);
         } else {
             query = CLI::event_loop();
-            Parser parser = Parser(query);
         }
-        auto vect = strlib::stack_split(query);
-        for (auto i : *vect){
-            std::cout << i << std::endl;
-        }
+        Parser parser = Parser(query);
+        std::cout << "valid input!";
     }
 }
 

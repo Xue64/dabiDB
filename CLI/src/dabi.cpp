@@ -9,7 +9,6 @@
 int main (int argc, char ** argv){
 
 
-
     /*
     {
         using namespace dive;
@@ -28,7 +27,6 @@ int main (int argc, char ** argv){
     } */
     // default console output
     if (argc==1){
-        init_help();
         return 0;
     }
 

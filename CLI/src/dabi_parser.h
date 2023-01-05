@@ -88,7 +88,7 @@ private:
         def_token->emplace("SELECT", make_op(OPERAND, COMPOUND));
         def_token->emplace("WHERE", make_op(OPERAND, COMPOUND));
         def_token->emplace("FROM", make_op(OPERAND, COMPOUND));
-        def_token->emplace("*", make_op(OPERAND, COMPOUND));
+        def_token->emplace("*", make_op(NOT_OP, COMPOUND));
         def_token->emplace("<", make_op(OPERAND, MATH));
         def_token->emplace(">=", make_op(OPERAND, MATH));
         def_token->emplace("=", make_op(OPERAND, MATH));
@@ -102,12 +102,30 @@ private:
     }
 
     auto parse(){
+        bool isTurn = false;
+        std::string prev;
         for (auto i : *token_plane){
             if (i->token_operand->type==OPERAND){
-                std::cout << "operand!\n";
+                if (isTurn){
+                    dabi_err::double_operand(i->token_name, prev);
+                }
+                isTurn = true;
             } else {
-                std::cout << "not operand\n";
+                if (!isTurn){
+                    dabi_err::invalidKey(i->token_name);
+                }
+                isTurn = false;
             }
+            prev = i->token_name;
+        }
+        if (token_plane->size()==0){
+            dabi_err::noSelect();
+        } else if(token_plane->at(0)->token_name!="SELECT"){
+            dabi_err::noSelect();
+        } else if (token_plane->size()<=3){
+            dabi_err::noFrom();
+        } else if (token_plane->at(2)->token_name!="FROM"){
+            dabi_err::noFrom();
         }
     }
 

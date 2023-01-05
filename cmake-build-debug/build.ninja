@@ -49,11 +49,11 @@ cmake_ninja_workdir = C$:/Users/Rufelle/CLionProjects/DiveDB-/cmake-build-debug/
 
 build cmake_object_order_depends_target_DiveDB_: phony || CMakeFiles/DiveDB_.dir
 
-build CMakeFiles/DiveDB_.dir/CLI/dabi.cpp.obj: CXX_COMPILER__DiveDB__Debug C$:/Users/Rufelle/CLionProjects/DiveDB-/CLI/dabi.cpp || cmake_object_order_depends_target_DiveDB_
-  DEP_FILE = CMakeFiles\DiveDB_.dir\CLI\dabi.cpp.obj.d
+build CMakeFiles/DiveDB_.dir/CLI/src/dabi.cpp.obj: CXX_COMPILER__DiveDB__Debug C$:/Users/Rufelle/CLionProjects/DiveDB-/CLI/src/dabi.cpp || cmake_object_order_depends_target_DiveDB_
+  DEP_FILE = CMakeFiles\DiveDB_.dir\CLI\src\dabi.cpp.obj.d
   FLAGS = -g -std=gnu++14
   OBJECT_DIR = CMakeFiles\DiveDB_.dir
-  OBJECT_FILE_DIR = CMakeFiles\DiveDB_.dir\CLI
+  OBJECT_FILE_DIR = CMakeFiles\DiveDB_.dir\CLI\src
 
 
 # =============================================================================
@@ -63,7 +63,7 @@ build CMakeFiles/DiveDB_.dir/CLI/dabi.cpp.obj: CXX_COMPILER__DiveDB__Debug C$:/U
 #############################################
 # Link the executable DiveDB_.exe
 
-build DiveDB_.exe: CXX_EXECUTABLE_LINKER__DiveDB__Debug CMakeFiles/DiveDB_.dir/CLI/dabi.cpp.obj
+build DiveDB_.exe: CXX_EXECUTABLE_LINKER__DiveDB__Debug CMakeFiles/DiveDB_.dir/CLI/src/dabi.cpp.obj
   FLAGS = -g
   LINK_FLAGS = -static
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
