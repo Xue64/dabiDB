@@ -7,7 +7,12 @@
 #include "dabi_parser.h"
 
 int main (int argc, char ** argv){
-    auto file = std::vector<std::string>();
+
+   std::string query;
+    auto vector = strlib::stack_split(query);
+    for (auto i : *vector){
+        std::cout << i << std::endl;
+    }
 
     /*
     {
@@ -30,10 +35,6 @@ int main (int argc, char ** argv){
         init_help();
         return 0;
     }
-
-
-
-
 
     // fetching commands by parsing command line arguments
     if(!fetch_command(argv[1])){

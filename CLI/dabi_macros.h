@@ -5,7 +5,7 @@
 
 #define let const auto
 #define func constexpr auto
-#define __ver 0.0.1
+#define __ver "(c)DiveTechnologies, 2023\nPactol, Rufelle Emmanuel\nversion 0.1.0\n";
 
 
 

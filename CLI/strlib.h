@@ -11,6 +11,7 @@
 #include <fstream>
 #include <iostream>
 #include "dabi_errorhandling.h"
+#include <conio.h>
 
 
 
@@ -21,6 +22,16 @@ namespace strlib {
     // The dive library for easy string and file handling
 
     using namespace std;
+
+
+    bool allSpace (const std::string& str){
+        for (auto i : str){
+            if (i!=' '){
+                return false;
+            }
+        }
+        return true;
+    }
 
     auto stack_split (const string& s){
         size_t stack_counter = 0;
@@ -41,6 +52,7 @@ namespace strlib {
                             break;
                         } else {
                             stack.pop_back();
+                            stack.push_back('"');
                             continue;
                         }
                     }
@@ -48,7 +60,9 @@ namespace strlib {
                 }
             }
             if (s[i]==' '){
-                res->push_back(stack);
+                if (!allSpace(stack)){
+                    res->push_back(stack);
+                }
                 stack.clear();
                 stack.reserve(s.size());
                 continue;
@@ -57,6 +71,9 @@ namespace strlib {
         }
         if (stack_counter%2){
             dabi_err::no_terminating_quote();
+        }
+        if (!allSpace(stack)){
+            res->push_back(stack);
         }
         return res;
     }
@@ -135,6 +152,33 @@ namespace strlib {
         }
 
         res.push_back(s.substr(pos_start));
+        return res;
+    }
+
+    auto get_pass (){
+        string res;
+        char c;
+        do{
+            c = getch();
+            switch(c){
+                case 0://special keys. like: arrows, f1-12 etc.
+                    getch();//just ignore also the next character.
+                    break;
+                case 13://enter
+                    cout<<endl;
+                    break;
+                case 8://backspace
+                    if(res.length()>0){
+                        res.erase(res.end()-1); //remove last character from string
+                        cout<<c<<' '<<c;//go back, write space over the character and back again.
+                    }
+                    break;
+                default://regular ascii
+                    res += c;//add to string
+                    cout<<'*';//print `*`
+                    break;
+            }
+        }while(c!=13);
         return res;
     }
 

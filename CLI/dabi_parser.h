@@ -128,7 +128,12 @@ public:
 };
 
 
-
+class Atom{
+public:
+    static auto query (const std::string && rval) -> std::string {
+        return rval;
+    }
+};
 
 #undef make_op
 #undef func
