@@ -72,11 +72,16 @@ namespace dabi {
 
         auto parse() {
             bool isTurn = false;
+            bool alias = false;
             std::string prev;
             token *prev_token;
-            for (auto i: *token_plane) {
+            token *prev_operator;
+            size_t tables_selected = 0; // number of tables already seleted
+            std::map<std::string, int> already_selected;
+            for (auto &i: *token_plane) {
                 // operand checking
                 if (i->token_operand->type == OPERAND) {
+                    prev_operator = i;
                     if (isTurn) {
                         dabi_err::double_operand(i->token_name, prev);
                     }
@@ -93,6 +98,35 @@ namespace dabi {
                             dabi_err::invalidMathOperand(i->token_name, prev_token->token_name);
                         }
                     } else if (i->token_operand->data_type == VARNAME) {
+
+                        // alias checking
+                        if (i->token_name=="*"||i->token_name=="*,"){
+                            if (alias || tables_selected > 0){
+                                dabi_err::aliasSelection();
+                            }
+                            alias = true;
+                        }
+
+                        // var args for select
+                        if (prev_operator->token_name=="SELECT"){
+                            // checks for multiple select:
+                            bool comma = false;
+                            if (i->token_name.at(i->token_name.length()-1)==','){
+                                i->token_name = i->token_name.substr(0, i->token_name.length()-1);
+                                tables_selected++;
+                                comma = true;
+                            }
+
+                            auto s = already_selected.emplace(i->token_name, 1);
+                            if (!s.second){
+                                dabi_err::reselectedTable(i->token_name);
+                            }
+
+
+                            if (comma){
+                                continue;
+                            }
+                        }
                         if (prev_token->token_operand->data_type != SELECTOR) {
                             dabi_err::invalidVariableOperand(i->token_name, prev_token->token_name);
                         }
@@ -105,6 +139,7 @@ namespace dabi {
                 }
                 prev = i->token_name;
                 prev_token = i;
+
             }
 
             if (isTurn) {
@@ -117,8 +152,13 @@ namespace dabi {
                 dabi_err::noSelect();
             } else if (token_plane->size() <= 3) {
                 dabi_err::noFrom();
-            } else if (token_plane->at(2)->token_name != "FROM") {
+            } else if (token_plane->at(2 + tables_selected)->token_name != "FROM") {
                 dabi_err::noFrom();
+            }
+
+            // DEBUG
+            for (auto i : *token_plane){
+                std::cout << i->token_name << std::endl;
             }
         }
 

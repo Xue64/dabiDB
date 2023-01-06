@@ -23,6 +23,16 @@ namespace dabi_err{
         exit(41);
     }
 
+    void reselectedTable(std::string table){
+        std::cerr << "ERR 701 Selector Error [DuplicateSelectionException]: multiple instances of table [" << table << "] being selected\n";
+        exit(701);
+    }
+
+    void aliasSelection(){
+        std::cerr << "ERR 702 Selector Error [AliasSelectionException]: cannot select another table after invoking instance of [*].\n";
+        exit(702);
+    }
+
     void no_terminating_quote(){
         std::cerr << "ERR 802 Parse Error [NoTerminatingQuoteException]: no terminating double quote character (\") detected. Remove all double quotes or fix formatting to avoid error.\n";
         exit(802);

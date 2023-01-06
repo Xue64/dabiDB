@@ -60,11 +60,8 @@ auto fetch_command (int argc, char ** argv) -> void {
         }
 
         dabi::Parser parser = dabi::Parser(query);
-        std::cout << "valid input!\n";
-        auto split = strlib::stack_split(query);
-        for (auto i : *split){
-            std::cout << i << std::endl;
-        }
+
+
 
 
     }

@@ -8,6 +8,10 @@
 
 int main (int argc, char ** argv){
 
+    /*
+    auto l = "SELECT a, * from Hello";
+    dabi::Parser parse = dabi::Parser(l);
+     */
 
     /*
     {

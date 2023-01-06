@@ -2,7 +2,11 @@ CLI ERRORS:
 41 - Invalid CLI command
 
 
+selector error:
+701 - duplicate tables selected
+702 - cannot select after alias
 
+parsing error:
 802 - unterminated double quote character
 803 - double operand error
 804 - invalid key exception, unknown value
@@ -14,3 +18,4 @@ data type errors:
 901 - conducting non-math operands on NUMERIC
 902 - conducting non-VARCHAR operands on VARCHAR
 903 - conducting non-selector operands on VARIABLES
+
