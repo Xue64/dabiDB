@@ -5,6 +5,9 @@
 #ifndef DIVEDB__DABI_ERRORHANDLING_H
 #define DIVEDB__DABI_ERRORHANDLING_H
 #include <iostream>
+#include <vector>
+#include <string>
+
 namespace dabi_err{
 
     void unknownCLICommand(std::vector<std::string> args){
@@ -31,6 +34,11 @@ namespace dabi_err{
     void aliasSelection(){
         std::cerr << "ERR 702 Selector Error [AliasSelectionException]: cannot select another table after invoking instance of [*].\n";
         exit(702);
+    }
+
+    void fromAlias(){
+        std::cerr << "ERR 703 Selector Error [AliasedFromException]: cannot perform FROM operation on invoked instance of [*].\n";
+        exit(703);
     }
 
     void no_terminating_quote(){
@@ -74,8 +82,13 @@ namespace dabi_err{
     }
 
     void invalidVariableOperand(const std::string &math, const std::string &operand){
-        std::cerr << "ERR 901 Operand Mismatch [NotSelectorOperandException]: the operand [" << operand << "] cannot operate on VARIABLES data [" << math << "]\n";
+        std::cerr << "ERR 903 Operand Mismatch [NotSelectorOperandException]: the operand [" << operand << "] cannot operate on VARIABLE data [" << math << "]\n";
         exit(903);
+    }
+
+    void invalidModifierOperand(const std::string &math, const std::string &operand){
+        std::cerr << "ERR 904 Operand Mismatch [NotModifierOperandException]: the operand [" << operand << "] cannot operate on MODIFIER data [" << math << "]\n";
+        exit(904);
     }
 
 }

@@ -5,6 +5,7 @@ CLI ERRORS:
 selector error:
 701 - duplicate tables selected
 702 - cannot select after alias
+703 - cannot use alias on FROM operator
 
 parsing error:
 802 - unterminated double quote character
@@ -18,4 +19,5 @@ data type errors:
 901 - conducting non-math operands on NUMERIC
 902 - conducting non-VARCHAR operands on VARCHAR
 903 - conducting non-selector operands on VARIABLES
+904 - conducting non-modify operands on MODIFIERS
 

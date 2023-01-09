@@ -8,7 +8,6 @@
 #include <memory>
 #include <string>
 #include <map>
-#include <hash_map>
 #include "strlib.h"
 #include "token_execute.h"
 #include "token.h"
@@ -62,22 +61,29 @@ namespace dabi {
             def_token->emplace("=", make_op(OPERAND, MATH));
             def_token->emplace("<=", make_op(OPERAND, MATH));
             def_token->emplace(">", make_op(OPERAND, MATH));
-            def_token->emplace("DROP", make_op(OPERAND, MODIFY));
-            def_token->emplace("ALTER", make_op(OPERAND, MODIFY));
-            def_token->emplace("TABLE", make_op(OPERAND, MODIFY_OPERANDS));
-            def_token->emplace("DATABASE", make_op(OPERAND, MODIFY_OPERANDS));
-            def_token->emplace("COLUMNS", make_op(OPERAND, MODIFY_OPERANDS));
+            def_token->emplace("DROP", make_op(OPERAND, MODIFY_OPERANDS));
+            def_token->emplace("ALTER", make_op(OPERAND, MODIFY_OPERANDS));
+            def_token->emplace("TABLE", make_op(NOT_OP, MODIFY));
+            def_token->emplace("DATABASE", make_op(NOT_OP, MODIFY));
+            def_token->emplace("COLUMN", make_op(OPERAND, MODIFY));
             def_token->emplace("LIKE", make_op(OPERAND, STRING_OPERATOR));
+            def_token->emplace("PRIMARY", make_op(OPERAND, MODIFY_OPERANDS));
+            def_token->emplace("CREATE", make_op(OPERAND, MODIFY_OPERANDS));
         }
 
         auto parse() {
+            if (token_plane->size()==0){
+                return;
+            }
             bool isTurn = false;
             bool alias = false;
+            bool modify_mode = false;
             std::string prev;
             token *prev_token;
             token *prev_operator;
             size_t tables_selected = 0; // number of tables already seleted
             std::map<std::string, int> already_selected;
+
             for (auto &i: *token_plane) {
                 // operand checking
                 if (i->token_operand->type == OPERAND) {
@@ -86,23 +92,33 @@ namespace dabi {
                         dabi_err::double_operand(i->token_name, prev);
                     }
                     isTurn = true;
+
                 } else {
                     // non-operand variable type checking
                     if (!isTurn) { // checks if operand - not_operand order is maintained
-                        dabi_err::invalidKey(i->token_name);
+                        if (modify_mode){
+                            modify_mode = true;
+                        } else {
+                            dabi_err::invalidKey(i->token_name);
+                        }
                     }
 
                     // checking for NUMERIC tokens
                     if (i->token_operand->data_type == NUMERIC) {
-                        if (prev_token->token_operand->data_type != MATH) {
+                        if (prev_operator->token_operand->data_type != MATH) {
                             dabi_err::invalidMathOperand(i->token_name, prev_token->token_name);
                         }
-                    } else if (i->token_operand->data_type == VARNAME) {
+                    }
+
+                    else if (i->token_operand->data_type == VARNAME) {
 
                         // alias checking
                         if (i->token_name=="*"||i->token_name=="*,"){
                             if (alias || tables_selected > 0){
                                 dabi_err::aliasSelection();
+                            }
+                            if (prev_operator->token_name == "FROM"){
+                                dabi_err::fromAlias();
                             }
                             alias = true;
                         }
@@ -126,14 +142,25 @@ namespace dabi {
                             if (comma){
                                 continue;
                             }
+
+
                         }
-                        if (prev_token->token_operand->data_type != SELECTOR) {
+                        if (prev_operator->token_operand->data_type != SELECTOR) {
                             dabi_err::invalidVariableOperand(i->token_name, prev_token->token_name);
                         }
-                    } else if (i->token_operand->data_type == VARCHAR) {
-                        if (prev_token->token_operand->data_type != STRING_OPERATOR) {
+                    }
+
+                    else if (i->token_operand->data_type == VARCHAR) {
+                        if (prev_operator->token_operand->data_type != STRING_OPERATOR) {
                             dabi_err::invalidStringOperand(i->token_name, prev_token->token_name);
                         }
+                    }
+
+                    else if (i->token_operand->data_type == MODIFY){
+                        if (prev_operator->token_operand->data_type != MODIFY_OPERANDS){
+                            dabi_err::invalidModifierOperand(i->token_name, prev_token->token_name);
+                        }
+                        modify_mode = true;
                     }
                     isTurn = false;
                 }

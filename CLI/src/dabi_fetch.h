@@ -41,13 +41,12 @@ auto fetch_command (int argc, char ** argv) -> void {
     }
     if (vector->at(1)=="cli"){
         std::string query;
-        if (vector->size()==6){
-            std::string key = vector->at(3);
-            std::string hash = vector->at(5);
+        if (vector->size()==4){
+            std::string hash = vector->at(3);
 
             // CLI args
-            if (vector->at(4)=="-p"&&vector->at(2)=="-h"){
-                query = CLI::event_loop(key, hash);
+            if (vector->at(2)=="-p"){
+                query = CLI::event_loop(hash);
             } else {
                 dabi_err::unknownCLICommand(*vector.get());
             }

@@ -9,36 +9,39 @@
 #include "strlib.h"
 namespace CLI{
 
-    void verify (std::string key, std::string hash){
+    void verify (std::string hash){
         return;
     }
 
-    auto event_loop (std::string key, std::string hash) -> std::string {
+    auto event_loop (std::string hash) -> std::string {
         std::string ret;
-        verify(key, hash);
+        verify(hash);
         while (true){
             std::string buffer;
-            std::cout << "[" + key + "]>> ";
+            std::cout << "> ";
             std::getline(std::cin, buffer);
             if (buffer==";"){
                 break;
             }
             ret += " " + buffer;
+            if (buffer.length()>=1){
+                if (buffer.at(buffer.length()-1)==';'){
+                    ret = ret.substr(0, ret.length()-1);
+                    break;
+                }
+            }
         }
         return ret;
     }
 
     auto event_loop () -> std::string {
-        std::string ret;
-        std::cout << "enter database key: ";
-        std::string key, hash;
-        std::getline(std::cin, key);
+        std::string ret, hash;
         std::cout << "enter database password: ";
         hash = strlib::get_pass();
-        verify(key, hash);
+        verify(hash);
         while (true){
             std::string buffer;
-            std::cout << "[" + key + "]>> ";
+            std::cout << "> ";
             std::getline(std::cin, buffer);
             if (buffer==";"){
                 break;
