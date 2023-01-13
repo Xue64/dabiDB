@@ -27,10 +27,26 @@ namespace dabi {
     struct token { // contains the operand, represents the token
         std::string token_name;
         operand *token_operand;
+        bool compound;
+        bool param;
 
         token(const std::string &token_name, operand *token_operand) {
             this->token_operand = token_operand;
             this->token_name = token_name;
+            compound = false;
+            param = false;
+        }
+
+        void setCompound(){
+            this->compound = true;
+        }
+
+        void setName (std::string name){
+            this->token_name = name;
+        }
+
+        void setParam (){
+            this->param = true;
         }
 
         token() {

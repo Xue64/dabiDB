@@ -1,3 +1,12 @@
 --> implement executor
 --> implement % str operator
 --> fix BUG: LIKE operator not working properly
+
+
+next log:
+-> implement the function syntax
+-> implement the parsing for the function syntax
+
+
+-> implement proper comma parsing
+-> identify compound statements using the compound token modifier when a comma occurs

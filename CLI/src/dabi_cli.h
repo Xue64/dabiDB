@@ -38,17 +38,7 @@ namespace CLI{
         std::string ret, hash;
         std::cout << "enter database password: ";
         hash = strlib::get_pass();
-        verify(hash);
-        while (true){
-            std::string buffer;
-            std::cout << "> ";
-            std::getline(std::cin, buffer);
-            if (buffer==";"){
-                break;
-            }
-            ret += " " + buffer;
-        }
-        return ret;
+        return event_loop(hash);
     }
 }
 

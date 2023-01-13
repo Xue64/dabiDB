@@ -12,12 +12,15 @@
 #include <iostream>
 #include "dabi_errorhandling.h"
 #include <conio.h>
+#include <functional>
 
 
 
 
 
 namespace strlib {
+
+    void params_append(std::string & str);
 
     // The dive library for easy string and file handling
 
@@ -33,22 +36,54 @@ namespace strlib {
         return true;
     }
 
+    bool m_params = false;
     auto stack_split (const string& s){
         size_t stack_counter = 0;
         std::string stack;
         auto res = make_shared<std::vector<std::string>>();
         for (int i = 0; i < s.length(); i++){
             stack.reserve(s.size());
+
+            // IGNORE semicolon
+            if (s[i]==';'){
+                continue;
+            }
+
+            // comma remover for params mode
+            if (s[i]==','){
+                if (m_params){
+                    continue;
+                }
+            }
+
+            // checker for params mode
+            if (s[i]=='('){
+                if (m_params){
+                    dabi_err::nestedParams();
+                }
+                m_params = true;
+                continue;
+            } else if (s[i]==')'){
+                if (!m_params){
+                    dabi_err::strayParams();
+                }
+                params_append(stack);
+                m_params = false;
+                continue;
+            }
+
+            // modifications for VARCHAR
             if (s[i]=='\"'){
                 stack_counter++;
                 for (i = i+1; i < s.length(); i++){
+
                     if (s[i]=='\"'){
                         if (s[i-1]!='\\'){
                             stack_counter++;
                             stack.append(" $$VARCHAR$$");
+                            params_append(stack);
                             res->push_back(stack);
                             stack.clear();
-                            stack.reserve(s.size());
                             i++;
                             break;
                         } else {
@@ -62,21 +97,43 @@ namespace strlib {
             }
             if (s[i]==' '){
                 if (!allSpace(stack)){
+                    params_append(stack);
                     res->push_back(stack);
                 }
                 stack.clear();
                 stack.reserve(s.size());
                 continue;
             }
+            if (s[i]==','){
+                if (!allSpace(stack)){
+                    params_append(stack);
+                    stack.append(" $$COMMA$$");
+                    res->push_back(stack);
+                }
+                stack.clear();
+                stack.reserve(s.size());
+                continue;
+            }
+
             stack.push_back(s[i]);
         }
         if (stack_counter%2){
             dabi_err::no_terminating_quote();
         }
+        if (m_params){
+            dabi_err::dangling_params();
+        }
         if (!allSpace(stack)){
+            params_append(stack);
             res->push_back(stack);
         }
         return res;
+    }
+
+    void params_append(std::string& str){
+        if (m_params){
+            str.append(" $$FUNC$$");
+        }
     }
 
 
@@ -190,6 +247,12 @@ namespace strlib {
         }
         return str;
     }
+
+    void removeComma (std::function<void()> function){
+        function();
+    }
+
+
 
 
 }

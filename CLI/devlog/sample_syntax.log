@@ -1,0 +1,26 @@
+SELECT <column name args> FROM <table>
+WHERE <column> <math_operator> <numeric>
+WHERE <column> LIKE <varchar>
+
+ALTER TABLE <table name>
+DROP <column name>
+RENAME <column name>
+
+ADD <column name>
+INSERT INTO (<column name>, <column name>, <column name>)
+VALUES (<value one>, <value two>, <value three>)
+
+
+ALTER DATABASE <database name>
+DROP <table name>
+ADD <table name>
+
+
+
+
+
+to-implement:
+SORT KEY
+FOREIGN KEY
+PRIMARY KEY
+

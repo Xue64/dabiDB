@@ -47,6 +47,8 @@ namespace dabi {
         static let MODIFY_OPERANDS = 9;
         static let STRING_OPERATOR = 10;
         static let VARNAME = 11;
+        static let FUNCTION = 12;
+        static let PARAMS = 13;
         std::vector<token *> *token_plane; // represents all the tokens in a query
         std::string query; // single-line strings to represent a query
         std::map<std::string, operand *> *def_token; // represents a map containing all the predefined operands, uses flyweight
@@ -69,6 +71,8 @@ namespace dabi {
             def_token->emplace("LIKE", make_op(OPERAND, STRING_OPERATOR));
             def_token->emplace("PRIMARY", make_op(OPERAND, MODIFY_OPERANDS));
             def_token->emplace("CREATE", make_op(OPERAND, MODIFY_OPERANDS));
+            def_token->emplace("INSERT", make_op(OPERAND, FUNCTION));
+            def_token->emplace("VALUES", make_op(OPERAND, FUNCTION));
         }
 
         auto parse() {
@@ -78,6 +82,7 @@ namespace dabi {
             bool isTurn = false;
             bool alias = false;
             bool modify_mode = false;
+            bool function_mode = false;
             std::string prev;
             token *prev_token;
             token *prev_operator;
@@ -145,9 +150,10 @@ namespace dabi {
 
 
                         }
-                        if (prev_operator->token_operand->data_type != SELECTOR) {
+                        if (prev_operator->token_operand->data_type != SELECTOR && !modify_mode ) {
                             dabi_err::invalidVariableOperand(i->token_name, prev_token->token_name);
                         }
+                        modify_mode = false;
                     }
 
                     else if (i->token_operand->data_type == VARCHAR) {
@@ -163,6 +169,9 @@ namespace dabi {
                         modify_mode = true;
                     }
                     isTurn = false;
+                    if (modify_mode){
+                        isTurn = true;
+                    }
                 }
                 prev = i->token_name;
                 prev_token = i;
@@ -175,7 +184,9 @@ namespace dabi {
 
             if (token_plane->size() == 0) {
                 dabi_err::noSelect();
-            } else if (token_plane->at(0)->token_name != "SELECT") {
+            } else if (
+                    token_plane->at(0)->token_name != "SELECT"
+                    && token_plane->at(0)->token_name != "ALTER") {
                 dabi_err::noSelect();
             } else if (token_plane->size() <= 3) {
                 dabi_err::noFrom();
@@ -184,6 +195,7 @@ namespace dabi {
             }
 
             // DEBUG
+            std::cout << "debug mode\n";
             for (auto i : *token_plane){
                 std::cout << i->token_name << std::endl;
             }
@@ -208,16 +220,33 @@ namespace dabi {
                     }
                     auto varchar = no_op.find(" $$VARCHAR$$");
                     if (varchar != std::string::npos) {
-                        no_op = no_op.substr(0, varchar);
+                       no_op.erase(varchar, 12);
                         token_buffer = new token(no_op, new operand(NOT_OP, VARCHAR));
-                    } else if (isNumeric) {
+                    }
+                    if (isNumeric) {
                         token_buffer = new token(no_op, new operand(NOT_OP, NUMERIC));
                     } else {
                         token_buffer = new token(no_op, new operand(NOT_OP, VARNAME));
                     }
+                    auto params = no_op.find(" $$FUNC$$");
+                    if (params != std::string::npos){
+                        no_op.erase(params, 9);
+                        token_buffer->setName(no_op);
+                        token_buffer->setParam();
+                    }
+                    auto compound = no_op.find(" $$COMMA$$");
+                    if (compound != std::string::npos){
+                        no_op.erase(compound, 10);
+                        token_buffer->setName(no_op);
+                        token_buffer->setCompound();
+                    }
 
                 }
                 token_plane->push_back(token_buffer);
+            }
+            std::cout << "Token Debug: ";
+            for (auto i : *token_plane){
+                std::cout << std::endl << i->token_name;
             }
             parse();
         }
