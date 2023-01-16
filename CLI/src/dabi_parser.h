@@ -217,8 +217,7 @@ namespace dabi {
                     if (varchar != std::string::npos) {
                        no_op.erase(varchar, 12);
                         token_buffer = new token(no_op, new operand(NOT_OP, VARCHAR));
-                    }
-                    if (isNumeric) {
+                    } else if (isNumeric) {
                         token_buffer = new token(no_op, new operand(NOT_OP, NUMERIC));
                     } else {
                         token_buffer = new token(no_op, new operand(NOT_OP, VARNAME));
