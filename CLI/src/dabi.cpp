@@ -10,13 +10,12 @@ int main (int argc, char ** argv){
 
 
    // auto l = "ALTER TABLE (a, \"VARCHAR ALERT\", c)";
-   auto l = "SELECT a,b,c FROM KEY VAR) ";
+   auto l = "SELECT a,z,c,d,r FROM z ";
     using namespace dabi;
     Parser parse = Parser(l);
     auto a = strlib::stack_split(l);
-    for (auto i : *a){
-        std::cout << i << std::endl;
-    } /*
+
+    /*
 
     {
         using namespace dive;

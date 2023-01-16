@@ -103,7 +103,7 @@ namespace dabi {
                     if (!isTurn) { // checks if operand - not_operand order is maintained
                         if (modify_mode){
                             modify_mode = true;
-                        } else {
+                        } else if (!prev_token->compound) {
                             dabi_err::invalidKey(i->token_name);
                         }
                     }
@@ -132,8 +132,7 @@ namespace dabi {
                         if (prev_operator->token_name=="SELECT"){
                             // checks for multiple select:
                             bool comma = false;
-                            if (i->token_name.at(i->token_name.length()-1)==','){
-                                i->token_name = i->token_name.substr(0, i->token_name.length()-1);
+                            if (i->compound){
                                 tables_selected++;
                                 comma = true;
                             }
@@ -195,10 +194,6 @@ namespace dabi {
             }
 
             // DEBUG
-            std::cout << "debug mode\n";
-            for (auto i : *token_plane){
-                std::cout << i->token_name << std::endl;
-            }
         }
 
 
